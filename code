@@ -1,0 +1,50 @@
+# Calculate the necessary sample size for the A/B test
+import statsmodels.stats.api as sms
+# Assuming you have the desired power, confidence level, and effect size
+desired_power = 0.8  # Set your desired power (0.8 for 80% power)
+alpha = 0.05  # Set your desired confidence level (0.05 for 95% confidence level)
+effect_size = 0.1  # Set your desired effect size/sensitivity, what size of impact is meaningful to detect? (e.g., 0.1 for a small effect size of 10 %, remember that smaller effects are more difficult to detect and can be hidden by randomness. the variance is often incorporated indirectly through the effect size. The effect size is the standardized difference between the groups' means or proportions, which is divided by the standard deviation to obtain a standardized measure.)
+
+required_sample_size = sms.NormalIndPower().solve_power(effect_size, power=desired_power, alpha=alpha, ratio=1.0, alternative='two-sided') #the ratio of the control group size to the test group size
+
+# Divide the required sample size equally between the test and control groups
+required_sample_size_per_group = required_sample_size / 2
+
+# Display the necessary sample size per group
+print(f"Necessary sample size per group: {required_sample_size_per_group}")
+
+# Perform A/B test on proportions
+import pandas as pd
+from scipy.stats import proportions_ztest
+
+# Assuming your dataframes have a column called "converted" that indicates success (1) or failure (0)
+success_test = group_test['converted'].sum()
+nobs_test = len(group_test)
+
+success_control = group_control['converted'].sum()
+nobs_control = len(group_control)
+
+# Perform A/B test using proportions_ztest
+stat, pval = proportions_ztest([success_test, success_control], [nobs_test, nobs_control])
+
+# Display the test results
+print(f"Test statistic: {stat}")
+print(f"P-value: {pval}")
+
+# Perform A/B test on means, assumption of normality and equal variances between the groups needs to be met.
+import pandas as pd
+from scipy.stats import ttest_ind
+
+# Assuming your dataframes have a column called "metric" that contains the metric values
+metric_test = group_test['metric']
+metric_control = group_control['metric']
+
+# Perform A/B test using ttest_ind
+stat, pval = ttest_ind(metric_test, metric_control)
+
+# Display the test results
+print(f"Test statistic: {stat}")
+print(f"P-value: {pval}")
+
+
+
