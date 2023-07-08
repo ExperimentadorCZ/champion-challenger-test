@@ -15,7 +15,8 @@ print(f"Necessary sample size per group: {required_sample_size_per_group}")
 
 # Perform A/B test on proportions
 import pandas as pd
-from scipy.stats import proportions_ztest
+import numpy as np
+from statsmodels.stats.proportion import proportions_ztest
 
 # Assuming your dataframes have a column called "converted" that indicates success (1) or failure (0)
 success_test = group_test['converted'].sum()
@@ -24,9 +25,11 @@ nobs_test = len(group_test)
 success_control = group_control['converted'].sum()
 nobs_control = len(group_control)
 
-# Perform A/B test using proportions_ztest
-stat, pval = proportions_ztest([success_test, success_control], [nobs_test, nobs_control])
+count = np.array([success_control, success_test])
+nobs = np.array([nobs_control, nobs_test])
 
+# Perform A/B test using proportions_ztest
+stat, pval = proportions_ztest(count, nobs, value=None, alternative='two-sided', prop_var=False)
 # Display the test results
 print(f"Test statistic: {stat}")
 print(f"P-value: {pval}")
